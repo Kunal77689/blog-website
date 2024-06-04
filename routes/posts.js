@@ -28,6 +28,7 @@ router.post("/create", async (req, res) => {
     const queryText =
       "INSERT INTO posts (title, content) VALUES ($1, $2) RETURNING *";
     const { rows } = await pool.query(queryText, [title, content]);
+
     res.status(201).json(rows[0]); // Return the created post
   } catch (err) {
     console.error("Error creating post:", err);
