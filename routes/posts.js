@@ -11,7 +11,9 @@ const pool = new Pool({
   port: 5433,
 });
 
-router.get("/", async (req, res) => {
+const auth = require("../middleware/authenticateToken");
+
+router.get("/", auth, async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM posts");
     res.json(rows);
@@ -21,7 +23,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
+router.post("/create", auth, async (req, res) => {
   const { title, content } = req.body; // Assuming title and content are provided in the request body
   try {
     // Insert the new post into the database
@@ -36,7 +38,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.post("/update/:postId", async (req, res) => {
+router.post("/update/:postId", auth, async (req, res) => {
   const { postId } = req.params; // Extract postId from the request parameters
   const { title, content } = req.body; // Extract title and content from the request body
   try {
@@ -55,7 +57,7 @@ router.post("/update/:postId", async (req, res) => {
   }
 });
 
-router.post("/delete/:postId", async (req, res) => {
+router.post("/delete/:postId", auth, async (req, res) => {
   const { postId } = req.params;
   try {
     const querytext = "DELETE FROM posts WHERE id = $1 RETURNING *";

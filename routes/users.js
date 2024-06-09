@@ -1,9 +1,13 @@
+require("dotenv").config();
+
 const express = require("express");
-
 const router = express.Router();
-
 const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const jwtSecret = process.env.JWT_SECRET;
 
+const auth = require("../middleware/authenticateToken");
 const pool = new Pool({
   host: "localhost",
   user: "postgres",
@@ -33,12 +37,13 @@ router.post("/createUser", async (req, res) => {
       profile_picture,
       bio,
     } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const querytext =
       "INSERT INTO users (username, email, password, first_name, last_name, profile_picture, bio) VALUES ($1,$2,$3,$4,$5, $6, $7) RETURNING *";
     const { rows } = await pool.query(querytext, [
       username,
       email,
-      password,
+      hashedPassword,
       first_name,
       last_name,
       profile_picture,
@@ -49,6 +54,28 @@ router.post("/createUser", async (req, res) => {
   } catch (err) {
     console.error("Error creating user:", err);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+    const user = result.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+    console.log(jwtSecret);
+    const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: "1h" });
+    res.json({ token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

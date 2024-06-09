@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { Pool } = require("pg");
+const auth = require("../middleware/authenticateToken");
 
 const pool = new Pool({
   user: "postgres",
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
+router.post("/create", auth, async (req, res) => {
   const { post_id, user_id, content } = req.body;
   try {
     const queryText =
@@ -35,7 +36,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.post("/update/:commentid", async (req, res) => {
+router.post("/update/:commentid", auth, async (req, res) => {
   const { commentid } = req.params;
   const { post_id, user_id, content } = req.body;
   try {
@@ -58,7 +59,7 @@ router.post("/update/:commentid", async (req, res) => {
   }
 });
 
-router.post("/delete/:commentid", async (req, res) => {
+router.post("/delete/:commentid", auth, async (req, res) => {
   const { commentid } = req.params;
   try {
     const querytext = "DELETE FROM comments WHERE id = $1 RETURNING *";
