@@ -36,9 +36,9 @@ router.post("/create", auth, async (req, res) => {
   }
 });
 
-router.post("/update:categoryid", auth, async (req, res) => {
+router.post("/update/:categoryid", auth, async (req, res) => {
   try {
-    const categoryid = req.params;
+    const { categoryid } = req.params;
     const { name } = req.body;
     const queryText =
       "UPDATE categories SET name = $1 where id = $2 RETURNING *";
@@ -53,18 +53,21 @@ router.post("/update:categoryid", auth, async (req, res) => {
   }
 });
 
-router.post("/delete:categoryid", auth, async (req, res) => {
+router.post("/delete/:categoryid", auth, async (req, res) => {
   try {
-    categoryid = req.params;
+    const { categoryid } = req.params;
     querytext = "DELETE FROM categories WHERE id = $1 RETURNING *";
     const { rows } = await pool.query(querytext, [categoryid]);
     if (rows.length == 0) {
-      res.status(404).json("Category not found");
+      res.status(404).json({ message: "Category not found" });
     }
-    res.status(200).json("Category deleted successfully", rows[0]);
+    res.json({
+      message: "Category deleted successfully",
+      deletedcategory: rows[0],
+    });
   } catch (err) {
     console.log(err);
-    res.status(500).json("Internal server error");
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
