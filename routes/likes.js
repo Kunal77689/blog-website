@@ -12,6 +12,24 @@ const pool = new Pool({
 
 const auth = require("../middleware/authenticateToken");
 
+function formatTimestamp(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+
+  // Construct the formatted date string
+  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+
+  return formattedDate;
+}
+
+const currentTimestamp = new Date();
+const formattedTimestamp = formatTimestamp(currentTimestamp);
+
 router.get("/", auth, async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM likes");
@@ -25,9 +43,10 @@ router.get("/", auth, async (req, res) => {
 router.post("/create", auth, async (req, res) => {
   try {
     const { post_id, user_id } = req.body;
+    const time = formattedTimestamp;
     const queryText =
-      "INSERT INTO likes (post_id, user_id) VALUES ($1, $2) RETURNING *";
-    const { rows } = await pool.query(queryText, [post_id, user_id]);
+      "INSERT INTO likes (post_id, user_id, created_at) VALUES ($1, $2, $3) RETURNING *";
+    const { rows } = await pool.query(queryText, [post_id, user_id, time]);
     res.status(201).json(rows[0]);
   } catch (err) {
     console.log(err);

@@ -11,6 +11,24 @@ const pool = new Pool({
   port: 5433,
 });
 
+function formatTimestamp(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
+
+  // Construct the formatted date string
+  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+
+  return formattedDate;
+}
+
+const currentTimestamp = new Date();
+const formattedTimestamp = formatTimestamp(currentTimestamp);
+
 const auth = require("../middleware/authenticateToken");
 
 router.get("/", auth, async (req, res) => {
@@ -24,12 +42,20 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.post("/create", auth, async (req, res) => {
-  const { title, content } = req.body; // Assuming title and content are provided in the request body
+  const { title, content, user_id } = req.body; // Assuming title and content are provided in the request body
+  const time = formattedTimestamp;
+  console.log(time);
   try {
     // Insert the new post into the database
     const queryText =
-      "INSERT INTO posts (title, content) VALUES ($1, $2) RETURNING *";
-    const { rows } = await pool.query(queryText, [title, content]);
+      "INSERT INTO posts (title, content, user_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *";
+    const { rows } = await pool.query(queryText, [
+      title,
+      content,
+      user_id,
+      time,
+      time,
+    ]);
 
     res.status(201).json(rows[0]); // Return the created post
   } catch (err) {
@@ -42,10 +68,16 @@ router.post("/update/:postId", auth, async (req, res) => {
   const { postId } = req.params; // Extract postId from the request parameters
   const { title, content } = req.body; // Extract title and content from the request body
   try {
+    const time = formattedTimestamp;
     // Update the post in the database
     const queryText =
-      "UPDATE posts SET title = $1, content = $2 WHERE id = $3 RETURNING *";
-    const { rows } = await pool.query(queryText, [title, content, postId]);
+      "UPDATE posts SET title = $1, content = $2, updated_at = $3 WHERE id = $4 RETURNING *";
+    const { rows } = await pool.query(queryText, [
+      title,
+      content,
+      time,
+      postId,
+    ]);
     if (rows.length === 0) {
       // If no rows were affected, the post with the specified ID doesn't exist
       return res.status(404).json({ message: "Post not found" });
