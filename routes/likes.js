@@ -72,21 +72,46 @@ router.post("/update/:likesid", auth, async (req, res) => {
   }
 });
 
-router.post("/delete/:id", auth, async (req, res) => {
+router.delete("/delete", auth, async (req, res) => {
   try {
-    const { id } = req.params;
-    querytext = "DELETE FROM likes WHERE id = $1 RETURNING *";
-    const { rows } = await pool.query(querytext, [id]);
-    if (rows.length == 0) {
-      res.status(404).json({ message: "like not found" });
+    const { post_id, user_id } = req.query;
+
+    if (!post_id || !user_id) {
+      return res
+        .status(400)
+        .json({ message: "post_id and user_id are required" });
     }
+
+    const queryText =
+      "DELETE FROM likes WHERE post_id = $1 AND user_id = $2 RETURNING *";
+    const { rows } = await pool.query(queryText, [post_id, user_id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "like not found" });
+    }
+
     res.json({
       message: "like deleted successfully",
-      deletedcategory: rows[0],
+      deletedLike: rows[0],
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/user/:userId", auth, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { rows } = await pool.query(
+      "SELECT post_id FROM likes WHERE user_id = $1",
+      [userId]
+    );
+    const likedPosts = rows.map((row) => row.post_id);
+    res.json({ likedPosts });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Internal server error");
   }
 });
 module.exports = router;

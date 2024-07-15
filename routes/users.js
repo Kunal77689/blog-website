@@ -114,6 +114,25 @@ router.post("/updateUser/:id", async (req, res) => {
   }
 });
 
+router.get("/getUserId/:email", async (req, res) => {
+  const email = req.params;
+
+  try {
+    const result = await pool.query("SELECT id FROM users WHERE email = $1", [
+      email.email,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+    const user = result.rows[0];
+    res.json({ user });
+  } catch (err) {
+    console.log(err);
+    req.status(500).json({ message: "Internal server error" });
+  }
+});
+
 router.post("/delete/:id", async (req, res) => {
   const { id } = req.params;
   try {
