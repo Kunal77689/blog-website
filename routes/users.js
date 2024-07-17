@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/updateUser/:id", async (req, res) => {
+router.put("/updateUser/:id", async (req, res) => {
   const { id } = req.params;
   const {
     username,
@@ -90,30 +90,49 @@ router.post("/updateUser/:id", async (req, res) => {
     profile_picture,
     bio,
   } = req.body;
+
   try {
-    const queryText =
-      "UPDATE users SET username=$1, email=$2, password=$3, first_name=$4, last_name=$5, profile_picture=$6, bio=$7 WHERE id=$8 RETURNING *";
-    const { rows } = await pool.query(queryText, [
-      username,
-      email,
-      password,
-      first_name,
-      last_name,
-      profile_picture,
-      bio,
-      id,
-    ]);
+    const userToUpdate = {};
+    if (username !== undefined) userToUpdate.username = username;
+    if (email !== undefined) userToUpdate.email = email;
+    if (password !== undefined) userToUpdate.password = password;
+    if (first_name !== undefined) userToUpdate.first_name = first_name;
+    if (last_name !== undefined) userToUpdate.last_name = last_name;
+    if (profile_picture !== undefined)
+      userToUpdate.profile_picture = profile_picture;
+    if (bio !== undefined) userToUpdate.bio = bio;
+
+    // Ensure at least one field is being updated
+    if (Object.keys(userToUpdate).length === 0) {
+      return res.status(400).json({ message: "No valid fields to update" });
+    }
+
+    let queryText = "UPDATE users SET ";
+    const values = [];
+
+    // Construct the SET clause dynamically based on userToUpdate object
+    const setClauses = Object.keys(userToUpdate).map((key, index) => {
+      values.push(userToUpdate[key]);
+      return `${key}=$${index + 1}`;
+    });
+
+    queryText += setClauses.join(", ");
+    queryText += ` WHERE id=$${setClauses.length + 1} RETURNING *`;
+
+    values.push(id);
+
+    const { rows } = await pool.query(queryText, values);
+
     if (rows.length === 0) {
-      // If no rows were affected, the user with the specified ID doesn't exist
       return res.status(404).json({ message: "User not found" });
     }
+
     res.json(rows[0]); // Return the updated user
   } catch (err) {
     console.error("Error updating user:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 router.get("/getUserId/:email", async (req, res) => {
   const email = req.params;
 
@@ -148,6 +167,23 @@ router.get("/getUserById/:userId", async (req, res) => {
     }
   } catch (error) {
     console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/getUserByUsername/:username", async (req, res) => {
+  const { username } = req.params;
+  try {
+    const query = "SELECT * FROM users WHERE username = $1";
+    const result = await pool.query(query, [username]);
+
+    if (result.rows.length > 0) {
+      res.status(200).json(result.rows[0]);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user by username:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

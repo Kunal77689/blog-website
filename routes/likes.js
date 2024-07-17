@@ -100,6 +100,23 @@ router.delete("/delete", auth, async (req, res) => {
   }
 });
 
+router.get("/top-liked-posts", auth, async (req, res) => {
+  try {
+    const queryText = `
+        SELECT post_id, COUNT(*) as like_count
+        FROM likes
+        GROUP BY post_id
+        ORDER BY like_count DESC
+        LIMIT 5;
+      `;
+    const { rows } = await pool.query(queryText);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching top liked posts:", err);
+    res.status(500).json("Internal server error");
+  }
+});
+
 router.get("/user/:userId", auth, async (req, res) => {
   try {
     const { userId } = req.params;
