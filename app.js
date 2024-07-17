@@ -18,6 +18,6 @@ app.use("/api/category", categoryroutes);
 app.use("/api/likes", categorylikes);
 
 //START SERVER
-app.listen(port, "0.0.0.0", () => {
-  console.log("Server is running on http://0.0.0.0:%d", port);
+app.listen(port, () => {
+  console.log("Server is running on http://localhost:%d", port);
 });
