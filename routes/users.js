@@ -14,6 +14,9 @@ const pool = new Pool({
   port: 5432,
   database: "postgres",
   password: "password176717",
+  ssl: {
+    rejectUnauthorized: false, // Accept self-signed certificates (change if needed)
+  },
 });
 
 router.get("/", async (req, res) => {
