@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const { Pool } = require("pg");
 const pool = new Pool({
   host: "database-test1.cvwmqagie4rf.us-east-2.rds.amazonaws.com",
   user: "postgres",
@@ -11,7 +12,6 @@ const pool = new Pool({
     rejectUnauthorized: false, // Accept self-signed certificates (change if needed)
   },
 });
-
 const auth = require("../middleware/authenticateToken");
 
 function formatTimestamp(date) {
