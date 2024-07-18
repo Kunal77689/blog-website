@@ -104,6 +104,7 @@ router.put("/updateUser/:id", async (req, res) => {
     last_name,
     profile_picture,
     bio,
+    avatar, // Added the avatar field
   } = req.body;
 
   try {
@@ -116,6 +117,7 @@ router.put("/updateUser/:id", async (req, res) => {
     if (profile_picture !== undefined)
       userToUpdate.profile_picture = profile_picture;
     if (bio !== undefined) userToUpdate.bio = bio;
+    if (avatar !== undefined) userToUpdate.avatar = avatar; // Added the avatar field
 
     // Ensure at least one field is being updated
     if (Object.keys(userToUpdate).length === 0) {
