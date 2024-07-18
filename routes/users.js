@@ -19,6 +19,18 @@ const pool = new Pool({
   },
 });
 
+const AWS = require("aws-sdk");
+AWS.config.update({ signatureVersion: "v4" });
+
+AWS.config.update({
+  region: "us-east-2",
+});
+
+AWS.config.credentials = new AWS.SharedIniFileCredentials({
+  profile: "default",
+});
+
+const s3 = new AWS.S3();
 router.get("/", async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM USERS");
@@ -188,6 +200,27 @@ router.get("/getUserByUsername/:username", async (req, res) => {
   } catch (error) {
     console.error("Error fetching user by username:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.post("/uploadAvatar", async (req, res) => {
+  try {
+    const { filename, filetype } = req.body;
+
+    // Generate a signed URL for uploading the file to S3
+    const params = {
+      Bucket: "blog-app-bucket-s3",
+      Key: filename,
+      ContentType: filetype,
+      Expires: 300, // URL expires in 5 minutes (300 seconds)
+    };
+
+    const uploadUrl = await s3.getSignedUrlPromise("putObject", params);
+
+    res.json({ url: uploadUrl });
+  } catch (error) {
+    console.error("Error generating upload URL:", error);
+    res.status(500).json({ message: "Failed to generate upload URL" });
   }
 });
 
