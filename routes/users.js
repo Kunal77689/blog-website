@@ -9,7 +9,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 const auth = require("../middleware/authenticateToken");
 const pool = new Pool({
-  host: "database-test1.cvwmqagie4rf.us-east-2.rds.amazonaws.com",
+  host: "database-1.cvwmqagie4rf.us-east-2.rds.amazonaws.com",
   user: "postgres",
   port: 5432,
   database: "postgres",

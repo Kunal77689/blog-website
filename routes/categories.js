@@ -5,7 +5,7 @@ const router = express.Router();
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  host: "database-test1.cvwmqagie4rf.us-east-2.rds.amazonaws.com",
+  host: "database-1.cvwmqagie4rf.us-east-2.rds.amazonaws.com",
   user: "postgres",
   port: 5432,
   database: "postgres",
