@@ -14,6 +14,19 @@ const pool = new Pool({
   },
 });
 
+const AWS = require("aws-sdk");
+AWS.config.update({ signatureVersion: "v4" });
+
+AWS.config.update({
+  region: "us-east-2",
+});
+
+AWS.config.credentials = new AWS.SharedIniFileCredentials({
+  profile: "default",
+});
+
+const s3 = new AWS.S3();
+
 function formatTimestamp(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -90,6 +103,24 @@ router.post("/update/:postId", auth, async (req, res) => {
     console.error("Error updating post:", err);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+router.post("/uploadPostImage", (req, res) => {
+  const { filename, filetype } = req.body;
+  const s3Params = {
+    Bucket: "blog-app-bucket-s3",
+    Key: filename,
+    Expires: 300,
+    ContentType: filetype,
+  };
+
+  s3.getSignedUrl("putObject", s3Params, (err, url) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+    res.json({ url });
+  });
 });
 
 router.post("/delete/:postId", auth, async (req, res) => {
