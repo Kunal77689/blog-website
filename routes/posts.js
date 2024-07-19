@@ -58,19 +58,20 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.post("/create", auth, async (req, res) => {
-  const { title, content, user_id } = req.body; // Assuming title and content are provided in the request body
+  const { title, content, user_id, post_image } = req.body; // Assuming title and content are provided in the request body
   const time = formattedTimestamp;
   console.log(time);
   try {
     // Insert the new post into the database
     const queryText =
-      "INSERT INTO posts (title, content, user_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *";
+      "INSERT INTO posts (title, content, user_id, created_at, updated_at, post_image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *";
     const { rows } = await pool.query(queryText, [
       title,
       content,
       user_id,
       time,
       time,
+      post_image,
     ]);
 
     res.status(201).json(rows[0]); // Return the created post
