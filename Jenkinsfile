@@ -1,4 +1,4 @@
-pipeline{
+pipeline {
     agent any
 
     triggers {
@@ -8,23 +8,23 @@ pipeline{
     stages {
         stage('Build') {
             steps {
-                {
-                    echo 'Build Sucessful'
+                script {
+                    echo 'Build Successful'
                 }
             }
         }
     }
 
     post {
-        sucess {
+        success {
             mail to: 'kunalsikka10500@gmail.com',
-            subject: 'Build successfull',
-            body: 'Build success'
+            subject: 'Build Successful',
+            body: 'Build was successful.'
         }
         failure {
             mail to: 'kunalsikka10500@gmail.com',
             subject: 'Build Failed',
-            body: 'Build Fail'
+            body: 'Build failed.'
         }
     }
 }
