@@ -8,8 +8,23 @@ pipeline{
     stages {
         stage('Build') {
             steps {
-                echo 'Hello World'
+                {
+                    echo 'Build Sucessful'
+                }
             }
+        }
+    }
+
+    post {
+        sucess {
+            mail to: 'kunalsikka10500@gmail.com',
+            subject: 'Build successfull',
+            body: 'Build success'
+        }
+        failure {
+            mail to: 'kunalsikka10500@gmail.com',
+            subject: 'Build Failed',
+            body: 'Build Fail'
         }
     }
 }
