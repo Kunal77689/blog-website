@@ -21,3 +21,5 @@ app.use("/api/likes", categorylikes);
 app.listen(port, () => {
   console.log("Server is running on http://localhost:%d", port);
 });
+
+//Testing automation
