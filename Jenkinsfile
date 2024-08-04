@@ -14,17 +14,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            mail to: 'kunalsikka10500@gmail.com',
-            subject: 'Build Successful',
-            body: 'Build was successful.'
-        }
-        failure {
-            mail to: 'kunalsikka10500@gmail.com',
-            subject: 'Build Failed',
-            body: 'Build failed.'
-        }
-    }
 }
