@@ -7,7 +7,7 @@ class MyAppUser(HttpUser):
 
     def on_start(self):
         """Perform login to get the authentication token."""
-        response = self.client.post("/api/users/login", json={"email": "test@example.com", "password": "password"})
+        response = self.client.post("/api/users/login", json={"email": "ksikka@mun.ca", "password": "1234"})
         if response.status_code == 200:
             self.token = response.json().get("token")
         else:
