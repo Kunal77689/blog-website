@@ -5,7 +5,7 @@ const commentsRoutes = require("./routes/commnets");
 const categoryroutes = require("./routes/categories");
 const categorylikes = require("./routes/likes");
 const app = express();
-const port = 3001;
+const port = 3000;
 const cors = require("cors");
 
 app.use(express.json());
