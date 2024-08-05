@@ -1,0 +1,207 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  # EC2 Instance
+  EC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: 't2.micro'
+      ImageId: !Ref LatestAmiId
+      KeyName: 'blog_ppk'
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+
+  # Security Group for EC2
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Enable SSH and HTTP access'
+      SecurityGroupIngress:
+        - IpProtocol: 'tcp'
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '9090'
+          ToPort: '9090'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '8089'
+          ToPort: '8089'
+          CidrIp: '::/0'
+        - IpProtocol: 'tcp'
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '8089'
+          ToPort: '8089'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '3000'
+          ToPort: '3000'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: 'tcp'
+          FromPort: '9090'
+          ToPort: '9090'
+          CidrIp: '::/0'
+        - IpProtocol: 'tcp'
+          FromPort: '5432'
+          ToPort: '5432'
+          CidrIp: '::/0'
+
+  # S3 Bucket for Frontend
+  FrontendBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: 'blog-app-bucket-s3'
+
+  # CloudFront Distribution
+  CloudFrontDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt FrontendBucket.DomainName
+            Id: 'S3Origin'
+            S3OriginConfig: {}
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: 'S3Origin'
+          ViewerProtocolPolicy: 'redirect-to-https'
+          AllowedMethods: 
+            - 'GET'
+            - 'HEAD'
+          CachedMethods: 
+            - 'GET'
+            - 'HEAD'
+          ForwardedValues:
+            QueryString: 'false'
+            Cookies:
+              Forward: 'none'
+        DefaultRootObject: 'index.html'
+
+  # RDS PostgreSQL Database
+  RDSInstance:
+    Type: 'AWS::RDS::DBInstance'
+    Properties:
+      DBInstanceClass: 'db.t2.micro'
+      AllocatedStorage: '20'
+      DBName: 'database-1'
+      Engine: 'postgres'
+      MasterUsername: 'postgres'
+      MasterUserPassword: 'password176717'
+      BackupRetentionPeriod: 0
+
+  # DB Subnet Group
+  RDSSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: 'Subnet group for RDS instance'
+      SubnetIds:
+        - 'subnet-0bd7161aa78d3ac1e'
+        - 'subnet-0408169b500f7ac64'
+        - 'subnet-06e88d769935b3838'
+
+  # Network ACL
+  NetworkAcl:
+    Type: 'AWS::EC2::NetworkAcl'
+    Properties:
+      VpcId: 'vpc-03401ce406b6b3a27'
+
+  # Network ACL Inbound Rule for Port 5432 (IPv6) - Specific Subnet CIDRs
+  NetworkAclInboundRuleIPv6_1:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      CidrBlock: '2600:1f16:14d5:1700::/56'
+      Egress: false
+      NetworkAclId: !Ref NetworkAcl
+      Protocol: 'tcp'
+      RuleAction: 'allow'
+      RuleNumber: 100
+      PortRange:
+        From: 5432
+        To: 5432
+
+  NetworkAclInboundRuleIPv6_2:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      CidrBlock: '2600:1f16:1e9b:6e00::/56'
+      Egress: false
+      NetworkAclId: !Ref NetworkAcl
+      Protocol: 'tcp'
+      RuleAction: 'allow'
+      RuleNumber: 101
+      PortRange:
+        From: 5432
+        To: 5432
+
+  NetworkAclInboundRuleIPv6_3:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      CidrBlock: '2600:1f16:1e9c:c00::/56'
+      Egress: false
+      NetworkAclId: !Ref NetworkAcl
+      Protocol: 'tcp'
+      RuleAction: 'allow'
+      RuleNumber: 102
+      PortRange:
+        From: 5432
+        To: 5432
+
+  # Network ACL Outbound Rule for Port 5432 (IPv6) - Specific Subnet CIDRs
+  NetworkAclOutboundRuleIPv6_1:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      CidrBlock: '2600:1f16:14d5:1700::/56'
+      Egress: true
+      NetworkAclId: !Ref NetworkAcl
+      Protocol: 'tcp'
+      RuleAction: 'allow'
+      RuleNumber: 100
+      PortRange:
+        From: 5432
+        To: 5432
+
+  NetworkAclOutboundRuleIPv6_2:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      CidrBlock: '2600:1f16:1e9b:6e00::/56'
+      Egress: true
+      NetworkAclId: !Ref NetworkAcl
+      Protocol: 'tcp'
+      RuleAction: 'allow'
+      RuleNumber: 101
+      PortRange:
+        From: 5432
+        To: 5432
+
+  NetworkAclOutboundRuleIPv6_3:
+    Type: 'AWS::EC2::NetworkAclEntry'
+    Properties:
+      CidrBlock: '2600:1f16:1e9c:c00::/56'
+      Egress: true
+      NetworkAclId: !Ref NetworkAcl
+      Protocol: 'tcp'
+      RuleAction: 'allow'
+      RuleNumber: 102
+      PortRange:
+        From: 5432
+        To: 5432
+
+Parameters:
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+    Description: 'Latest Amazon Linux 2 AMI Id'
+
+Outputs:
+  WebsiteURL:
+    Value: !Sub 'http://${FrontendBucket}.s3-website-${AWS::Region}.amazonaws.com'
+    Description: 'URL for website hosted on S3'
+  CloudFrontURL:
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Description: 'URL for website served through CloudFront'

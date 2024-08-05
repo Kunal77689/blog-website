@@ -5,13 +5,15 @@ const router = express.Router();
 const { Pool } = require("pg");
 
 const pool = new Pool({
-  host: "localhost",
+  host: "database-1.cvwmqagie4rf.us-east-2.rds.amazonaws.com",
   user: "postgres",
-  port: 5433,
-  database: "blog_website",
-  password: "176717",
+  port: 5432,
+  database: "postgres",
+  password: "password176717",
+  ssl: {
+    rejectUnauthorized: false, // Accept self-signed certificates (change if needed)
+  },
 });
-
 const auth = require("../middleware/authenticateToken");
 
 function formatTimestamp(date) {
