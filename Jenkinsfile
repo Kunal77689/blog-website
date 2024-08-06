@@ -39,6 +39,15 @@ pipeline {
             }
         }
 
+        stage('Check NodeJS') {
+            steps {
+                script {
+                    sh 'node --version'  // Check the NodeJS version
+                    sh 'npm --version'   // Check the npm version
+                }
+            }
+        }
+
         stage('Archive Artifacts') {
             steps {
                 // Archive build artifacts (if any)
