@@ -6,7 +6,7 @@ const categoryroutes = require("./routes/categories");
 const categorylikes = require("./routes/likes");
 const client = require("prom-client");
 const app = express();
-const port = 8000;
+const port = 8050;
 const cors = require("cors");
 
 const collectDefaultMetrics = client.collectDefaultMetrics;
@@ -62,8 +62,9 @@ app.use("/api/category", categoryroutes);
 app.use("/api/likes", categorylikes);
 
 //START SERVER
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log("Server is running on http://localhost:%d", port);
 });
 
 //Testing automation
+module.exports = { app, server };
