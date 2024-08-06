@@ -1,8 +1,8 @@
 const request = require("supertest");
-const express = require("express");
+const app = require("../app"); // Import the app without starting the server
 const { Pool } = require("pg");
-const { app, server } = require("../app"); // Make sure this points to your Express app
 const bcrypt = require("bcryptjs");
+
 // Mock the database pool
 jest.mock("pg", () => {
   const mPool = {
@@ -78,10 +78,5 @@ describe("Post Routes", () => {
       .send(updatedPost);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("title", "Updated Post");
-  });
-
-  afterAll(async () => {
-    // Assuming `app` starts the server in your test file
-    await server.close(); // or any method to properly close the server
   });
 });

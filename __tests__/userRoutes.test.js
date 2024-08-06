@@ -1,9 +1,7 @@
 const request = require("supertest");
-const express = require("express");
+const app = require("../app"); // Import the app without starting the server
 const { Pool } = require("pg");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { app, server } = require("../app"); // Make sure this points to your Express app
 
 // Mock the database pool
 jest.mock("pg", () => {
@@ -120,10 +118,5 @@ describe("User Routes", () => {
       "message",
       "User deleted successfully"
     );
-  });
-
-  afterAll(async () => {
-    // Assuming `app` starts the server in your test file
-    await server.close(); // or any method to properly close the server
   });
 });
