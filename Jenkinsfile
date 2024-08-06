@@ -50,7 +50,7 @@ pipeline {
     post {
         always {
             // Clean up or notify after the pipeline run
-            cleanWs()
+            deleteDir()  // Replaces cleanWs
         }
         success {
             // Notify on success
