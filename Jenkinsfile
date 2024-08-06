@@ -31,22 +31,6 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                // Run build command if you have one
-                sh 'npm run build'
-            }
-        }
-
-        stage('Check NodeJS') {
-            steps {
-                script {
-                    sh 'node --version'  // Check the NodeJS version
-                    sh 'npm --version'   // Check the npm version
-                }
-            }
-        }
-
         stage('Archive Artifacts') {
             steps {
                 // Archive build artifacts (if any)
@@ -62,11 +46,11 @@ pipeline {
         }
         success {
             // Notify on success
-            echo 'Build and tests passed!'
+            echo 'Tests passed!'
         }
         failure {
             // Notify on failure
-            echo 'Build or tests failed!'
+            echo 'Tests failed!'
         }
     }
 }
