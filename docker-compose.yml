@@ -1,9 +1,23 @@
-version: "3"
+version: '3.8'
 
 services:
+  jenkins:
+    build: .
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+
   prom-server:
     image: prom/prometheus
     ports:
-      - "9090:9090"  # Fixed port mapping format
+      - "9090:9090"
     volumes:
-      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml  # Fixed volume path format
+      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
+
+volumes:
+  jenkins_home:
