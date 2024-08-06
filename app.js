@@ -61,7 +61,7 @@ app.use("/api/comments", commentsRoutes);
 app.use("/api/category", categoryroutes);
 app.use("/api/likes", categorylikes);
 
-//START SERVER
+//START SERVER.
 if (process.env.NODE_ENV !== "test") {
   const server = app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
