@@ -43,6 +43,6 @@ class MyAppUser(HttpUser):
 
 # Start Prometheus client
 if __name__ == "__main__":
-    start_http_server(8000)  # Prometheus metrics will be available at http://localhost:8000/metrics
+    start_http_server(8050)  # Prometheus metrics will be available at http://localhost:8000/metrics
     import locust
     locust.main()

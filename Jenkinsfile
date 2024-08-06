@@ -2,7 +2,11 @@ pipeline {
     agent any
 
     environment {
-        NODE_VERSION = '18'  // Specify your Node.js version here
+        NODE_VERSION = '22.5.1'  // Specify your Node.js version here
+    }
+
+    tools {
+        nodejs "22.5.1"
     }
 
     stages {
@@ -16,34 +20,29 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // Use Node.js tool configured in Jenkins
-                script {
-                    def node = tool name: 'NodeJS', type: 'NodeJSInstallation'
-                    env.PATH = "${node}/bin:${env.PATH}"
-                }
-                // Install project dependencies
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Run your tests
-                sh 'npm test'
+                bat 'npm test'
             }
         }
 
         stage('Build') {
             steps {
                 // Run build command if you have one
-                sh 'npm run build'
+                bat 'npm run build'
             }
         }
 
         stage('Check NodeJS') {
             steps {
                 script {
-                    sh 'node --version'  // Check the NodeJS version
-                    sh 'npm --version'   // Check the npm version
+                    bat 'node --version'  // Check the NodeJS version
+                    bat 'npm --version'   // Check the npm version
                 }
             }
         }
