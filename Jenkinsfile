@@ -20,29 +20,29 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 // Use Node.js tool configured in Jenkins
-                bat 'npm install'
+                sh 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
                 // Run your tests
-                bat 'npm test'
+                sh 'npm test'
             }
         }
 
         stage('Build') {
             steps {
                 // Run build command if you have one
-                bat 'npm run build'
+                sh 'npm run build'
             }
         }
 
         stage('Check NodeJS') {
             steps {
                 script {
-                    bat 'node --version'  // Check the NodeJS version
-                    bat 'npm --version'   // Check the npm version
+                    sh 'node --version'  // Check the NodeJS version
+                    sh 'npm --version'   // Check the npm version
                 }
             }
         }
