@@ -47,10 +47,32 @@ pipeline {
         success {
             // Notify on success
             echo 'Tests passed!'
+            emailext(
+                to: 'kunalsikka10500@gmail.com',
+                subject: "Build Successful: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Good news! The build was successful.\n\n" +
+                      "Job: ${env.JOB_NAME}\n" +
+                      "Build Number: ${env.BUILD_NUMBER}\n" +
+                      "Build URL: ${env.BUILD_URL}\n" +
+                      "Git Commit: ${env.GIT_COMMIT}\n" +
+                      "Build Duration: ${currentBuild.durationString}\n" +
+                      "Built by: ${env.BUILD_USER}\n"
+            )
         }
         failure {
             // Notify on failure
             echo 'Tests failed!'
+            emailext(
+                to: 'kunalsikka10500@gmail.com',
+                subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Unfortunately, the build has failed.\n\n" +
+                      "Job: ${env.JOB_NAME}\n" +
+                      "Build Number: ${env.BUILD_NUMBER}\n" +
+                      "Build URL: ${env.BUILD_URL}\n" +
+                      "Git Commit: ${env.GIT_COMMIT}\n" +
+                      "Build Duration: ${currentBuild.durationString}\n" +
+                      "Built by: ${env.BUILD_USER}\n"
+            )
         }
     }
 }
